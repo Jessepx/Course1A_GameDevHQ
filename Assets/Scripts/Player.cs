@@ -17,6 +17,10 @@ public class Player : MonoBehaviour
     [SerializeField]
     private int _lives = 3;
     [SerializeField]
+    private int _shieldAmmount = 0;
+    [SerializeField]
+    private int _ammo = 15;
+    [SerializeField]
     private SpawnManager _spawnManager;
     [SerializeField]
     private GameObject _tripleShotPrefab;
@@ -42,6 +46,8 @@ public class Player : MonoBehaviour
     private AudioClip _explosionSoundClip;
     [SerializeField]
     private AudioClip _powerupSoundClip;
+    [SerializeField]
+    private AudioClip _outOfAmmoClip;
 
 
     // Start is called before the first frame update
@@ -89,9 +95,14 @@ public class Player : MonoBehaviour
         float xRightBounds = 11.3f;
         Vector3 direction = new Vector3(horizontalInput, verticalInput, 0);
 
-
-        transform.Translate(direction * _speed * Time.deltaTime);
-
+        if(Input.GetKey(KeyCode.LeftShift))
+        {
+            transform.Translate(direction * _speed * 2 * Time.deltaTime);
+        }
+        else
+        {
+            transform.Translate(direction * _speed * Time.deltaTime);
+        }
 
         if (transform.position.y > yUpperBounds)
         {
@@ -114,31 +125,49 @@ public class Player : MonoBehaviour
 
     public void FireLaser()
     {
-        Vector3 laserOffset = new Vector3(transform.position.x, transform.position.y + 1.05f, 0);
-        _canFire = Time.time + _fireRate;
-        _audioSource.clip = _laserSoundClip;
-        if (_tripleShotActive == true)
+        if(_ammo > 0)
         {
-            Instantiate(_tripleShotPrefab, transform.position, Quaternion.Euler(0, 0, 0));
+            Vector3 laserOffset = new Vector3(transform.position.x, transform.position.y + 1.05f, 0);
+            _canFire = Time.time + _fireRate;
+            _audioSource.clip = _laserSoundClip;
+
+            if (_tripleShotActive == true)
+            {
+                Instantiate(_tripleShotPrefab, transform.position, Quaternion.Euler(0, 0, 0));
+            }
+            else
+            {
+                Instantiate(_laserPrefab, laserOffset, Quaternion.Euler(0, 0, 0));
+            }
+
+            _audioSource.Play();
+            _ammo--;
+            _uiManager.UpdateAmmoUI(_ammo);
         }
         else
         {
-            Instantiate(_laserPrefab, laserOffset, Quaternion.Euler(0, 0, 0));
+            _audioSource.clip = _outOfAmmoClip;
+            _audioSource.time = .1f;
+            _audioSource.Play();
+            _audioSource.SetScheduledEndTime(AudioSettings.dspTime + .4f);
+            
         }
 
-        _audioSource.Play();
     }
 
     public void Damage()
     {
-        if(_shieldBoostActive == true)
+        if(_shieldAmmount > 0)
         {
-            _shieldBoostActive = false;
-            _shield.SetActive(false);
+            _shieldAmmount--;
+            _uiManager.UpdateShieldUI(_shieldAmmount);
 
-            return;
+            if(_shieldAmmount == 0)
+            {
+                _shield.SetActive(false);
+            }
         }
-        else
+        else if(_shieldAmmount == 0)
         {
             _lives--;
 
@@ -207,8 +236,9 @@ public class Player : MonoBehaviour
 
     public void ShieldBoostActive()
     {
-        _shieldBoostActive = true;
         _shield.SetActive(true);
+        _shieldAmmount = 3;
+        _uiManager.UpdateShieldUI(_shieldAmmount);
         _audioSource.clip = _powerupSoundClip;
         _audioSource.Play();
     }
