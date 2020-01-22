@@ -61,7 +61,10 @@ public class UIManager : MonoBehaviour
 
     public void UpdateLivesUI(int currentLives)
     {
-        _livesImage.sprite = _liveSprites[currentLives];
+        if(currentLives <=3)
+        {
+            _livesImage.sprite = _liveSprites[currentLives];
+        }
     }
 
     public void DrawGameOverTextUI()

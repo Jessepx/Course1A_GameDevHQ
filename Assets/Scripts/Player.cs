@@ -28,6 +28,7 @@ public class Player : MonoBehaviour
     private GameObject _shield;
     [SerializeField]
     private GameObject[] _engines;
+    private bool _playerHit = false;
 
     private bool _tripleShotActive = false;
     private bool _speedBoostActive = false;
@@ -170,8 +171,8 @@ public class Player : MonoBehaviour
         else if(_shieldAmmount == 0)
         {
             _lives--;
-
             _uiManager.UpdateLivesUI(_lives);
+            StartCoroutine(PlayerHitRoutine());
 
             if (_lives == 2)
             {
@@ -243,9 +244,51 @@ public class Player : MonoBehaviour
         _audioSource.Play();
     }
 
+    public void CollectAmmo()
+    {
+        _ammo += 15;
+        _uiManager.UpdateAmmoUI(_ammo);
+        _audioSource.clip = _powerupSoundClip;
+        _audioSource.Play();
+    }
+
+    public void CollectHealth()
+    {
+        _lives++;
+
+        if (_lives == 3)
+        {
+            foreach (var engine in _engines)
+            {
+                engine.SetActive(false);
+            }
+        }
+        else if (_lives == 2)
+        {
+            var randomEngine = Random.Range(0, 2);
+            _engines[randomEngine].SetActive(false);
+        }
+
+        _uiManager.UpdateLivesUI(_lives);
+        _audioSource.clip = _powerupSoundClip;
+        _audioSource.Play();
+    }
+
     public void UpdateScore(int points)
     {
         _score += points;
         _uiManager.UpdateScoreUI(_score);
+    }
+
+    public bool GetPlayerHit()
+    {
+        return _playerHit;
+    }
+
+    private IEnumerator PlayerHitRoutine()
+    {
+        _playerHit = true;
+        yield return new WaitForSeconds(0.5f);
+        _playerHit = false;
     }
 }

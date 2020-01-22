@@ -48,6 +48,7 @@ public class Asteroid : MonoBehaviour
 
             _spawnManager.StartSpawning();
             gameObject.GetComponent<SpriteRenderer>().enabled = false;
+            Destroy(GetComponent<Collider2D>());
             Destroy(this.gameObject, 1f);
         }
     }
