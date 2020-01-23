@@ -28,11 +28,14 @@ public class Player : MonoBehaviour
     private GameObject _shield;
     [SerializeField]
     private GameObject[] _engines;
-    private bool _playerHit = false;
+    [SerializeField]
+    private GameObject _beamPrefab;
 
+    private bool _playerHit = false;
     private bool _tripleShotActive = false;
     private bool _speedBoostActive = false;
     private bool _shieldBoostActive = false;
+    private bool _beamActive = false;
 
     [SerializeField]
     private int _score;
@@ -242,6 +245,24 @@ public class Player : MonoBehaviour
         _uiManager.UpdateShieldUI(_shieldAmmount);
         _audioSource.clip = _powerupSoundClip;
         _audioSource.Play();
+    }
+
+    public void BeamActive()
+    {
+        _beamPrefab.SetActive(true);
+        _beamActive = true;
+
+        StartCoroutine(BeamPowerDownRoutine());
+    }
+
+    private IEnumerator BeamPowerDownRoutine()
+    {
+        _audioSource.clip = _outOfAmmoClip;
+        _audioSource.Play();
+        _audioSource.SetScheduledEndTime(AudioSettings.dspTime + 5.0f);
+        yield return new WaitForSeconds(5.0f);
+        _beamActive = false;
+        _beamPrefab.SetActive(false);
     }
 
     public void CollectAmmo()

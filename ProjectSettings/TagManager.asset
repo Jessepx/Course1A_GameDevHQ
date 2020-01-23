@@ -7,6 +7,7 @@ TagManager:
   - Enemy
   - Laser
   - Shield
+  - Beam
   layers:
   - Default
   - TransparentFX

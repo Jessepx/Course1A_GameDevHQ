@@ -46,6 +46,9 @@ public class Powerup : MonoBehaviour
                     case 4:
                         player.CollectHealth();
                         break;
+                    case 5:
+                        player.BeamActive();
+                        break;
                     default:
                         Debug.Log("Default");
                         break;

@@ -93,6 +93,19 @@ public class Enemy : MonoBehaviour
             Destroy(GetComponent<Collider2D>());
             Destroy(this.gameObject, 2.8f);
         }
+        else if (other.transform.tag == "Beam")
+        {
+            if (_player != null)
+            {
+                _player.UpdateScore(10);
+            }
+            _audioSource.clip = _explosionSoundClip;
+            _animator.SetTrigger("OnEnemyDeath");
+            _speed = 0;
+            _audioSource.Play();
+            Destroy(GetComponent<Collider2D>());
+            Destroy(this.gameObject, 2.8f);
+        }
     }
 
     private void CalculateMovement()
