@@ -30,7 +30,16 @@ public class Player : MonoBehaviour
     private GameObject[] _engines;
     [SerializeField]
     private GameObject _beamPrefab;
+    [SerializeField]
+    private float _thrusterAmount = 1f;
+    private float _thrusterRate = 0.15f;
+    private float _canThruster = -1f;
+    private float _rechargeRate = 0.3f;
+    private float _canRecharge = -1f;
+    [SerializeField]
+    private ThrusterBar _thrusterBar;
 
+    private bool _thrustersActive = false;
     private bool _playerHit = false;
     private bool _tripleShotActive = false;
     private bool _speedBoostActive = false;
@@ -79,7 +88,7 @@ public class Player : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
         CalculateMovement();
 
@@ -101,10 +110,24 @@ public class Player : MonoBehaviour
 
         if(Input.GetKey(KeyCode.LeftShift))
         {
-            transform.Translate(direction * _speed * 2 * Time.deltaTime);
+            if(_thrusterAmount > 0)
+            {
+                ActivateThrusters(direction);
+
+                if (Time.time > _canThruster)
+                {
+                    UpdateThruster();
+                }
+            }
+            else
+            {
+                transform.Translate(direction * _speed * Time.deltaTime);
+            }
         }
         else
         {
+            _thrustersActive = false;
+            ThrustersCooldown();
             transform.Translate(direction * _speed * Time.deltaTime);
         }
 
@@ -206,6 +229,34 @@ public class Player : MonoBehaviour
     public int GetLives()
     {
         return _lives;
+    }
+
+    private void ActivateThrusters(Vector3 direction)
+    {
+        _thrustersActive = true;
+        _thrusterAmount -= 0.01f;
+        transform.Translate(direction * _speed * 2 * Time.deltaTime);
+    }
+
+    private void UpdateThruster()
+    {
+        if(_thrustersActive == true)
+        {
+            _canThruster = Time.time + _thrusterRate;
+            _thrusterBar.SetSizeDown(_thrusterAmount);
+        }
+    }
+
+    private void ThrustersCooldown()
+    {
+        if(_thrustersActive == false)
+        {
+            if(_thrusterAmount < 1.0f)
+            {
+                _thrusterAmount += 0.1f;
+                _thrusterBar.SetSizeUp(_thrusterAmount);
+            }
+        }
     }
 
     public void TripleShotActive()

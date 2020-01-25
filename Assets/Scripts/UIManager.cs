@@ -38,12 +38,6 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
-
     public void UpdateShieldUI(int shieldsLeft)
     {
         _shieldText.text = "Shields: " + shieldsLeft;
@@ -61,7 +55,7 @@ public class UIManager : MonoBehaviour
 
     public void UpdateLivesUI(int currentLives)
     {
-        if(currentLives <=3)
+        if(currentLives <= 3)
         {
             _livesImage.sprite = _liveSprites[currentLives];
         }
