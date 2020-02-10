@@ -18,12 +18,16 @@ public class Enemy : MonoBehaviour
     private float _fireRate = 3.0f;
     private float _canFire = -1f;
 
+    private int[] _leftOrRight = { -1, 1 };
+    private int _randomDir;
+
     // Start is called before the first frame update
     void Start()
     {
         _player = GameObject.Find("Player").GetComponent<Player>();
         _animator = GetComponent<Animator>();
         _audioSource = GetComponent<AudioSource>();
+        _randomDir = Random.Range(0, 2);
 
         if (_player == null)
         {
@@ -44,7 +48,7 @@ public class Enemy : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        CalculateMovement();
+        CalculateHorizontalMovement();
 
         if (Time.time > _canFire)
         {
@@ -108,7 +112,7 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    private void CalculateMovement()
+    private void CalculateDownwardMovement()
     {
         float yLowerBounds = -5.0f;
         float yUpperBounds = 7.0f;
@@ -120,6 +124,33 @@ public class Enemy : MonoBehaviour
         {
             Vector3 wrapSpawnPosition = new Vector3(Random.Range(-9.0f, 9.0f), yUpperBounds, 0);
             transform.position = wrapSpawnPosition;
+        }
+    }
+
+    private void CalculateHorizontalMovement()
+    {
+        float yLowerBounds = -5.0f;
+        float yUpperBounds = 7.0f;
+        float xLeftBounds = -11.3f;
+        float xRightBounds = 11.3f;
+        int horizontalDirection = _leftOrRight[_randomDir];
+        Vector3 randomDirection = new Vector3(horizontalDirection, -1, 0);
+
+        transform.Translate(randomDirection * _speed * Time.deltaTime);
+
+        if (transform.position.y < yLowerBounds)
+        {
+            Vector3 wrapSpawnPosition = new Vector3(Random.Range(-9.0f, 9.0f), yUpperBounds, 0);
+            transform.position = wrapSpawnPosition;
+        }
+
+        if (transform.position.x > xRightBounds)
+        {
+            transform.position = new Vector3(xLeftBounds, transform.position.y, 0);
+        }
+        else if (transform.position.x < xLeftBounds)
+        {
+            transform.position = new Vector3(xRightBounds, transform.position.y, 0);
         }
     }
 }
